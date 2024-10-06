@@ -37,6 +37,31 @@ def extract_functions_docstrings(pyfile_path):
     
     return Box(functions_info)
 
+def is_function_used(function_name, file_path):
+    '''
+    Check if a function is used within a given py file.
+    '''
+    try:
+        with open(file_path, 'r') as file:
+            content = file.read()
+            return function_name in content
+    except FileNotFoundError:
+        print(f"The file {file_path} does not exist.")
+        return False
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return False
+    
+def remove_functions_used_within(functions_info):
+    '''
+    Removes functions that are used within the same file where they are defined
+    '''
+    functions_info_ = deepcopy(functions_info)
+    functions_to_remove = [key for key, value in functions_info_.items() if is_function_used(key, value.path)]
+    for key in functions_to_remove:
+        del functions_info_[key]
+    return  functions_info_
+
 def remove_internal_functions(functions_info):
     '''
     Removes internal functions from the functions_info dictionary/box returned by extract_functions_docstring
