@@ -3,6 +3,7 @@ import ast
 from box import Box
 from copy import deepcopy
 from time import time
+import requests
 
 
 def find_all_py_files(directory):
@@ -56,7 +57,7 @@ def remove_referenced_docstrings(functions_info):
     functions_to_remove = []
 
     for key, value in functions_info.items():
-        if (isinstance(value.docstring, str) and ':ref:' in value.docstring) or value.docstring is None: 
+        if (isinstance(value.docstring, str) and ':ref:`sphx_glr_auto_examples_' in value.docstring) or value.docstring is None: 
             functions_to_remove.append(key)
 
     for key in functions_to_remove:
@@ -127,6 +128,15 @@ def remove_unused_functions(functions_info):
         del functions_info_[key]
 
     return functions_info_
+
+def count_mentions_from_url(target_string, url="https://github.com/scikit-learn/scikit-learn/issues/26927"):
+    '''
+    Given a URL, counts the occurrences of the target_string on the webpage
+    '''
+    response = requests.get(url)
+    content = response.text
+    occurrences = content.count(target_string)
+    return occurrences
 
 if __name__ == "__main__":
     directory = './scikit-learn/sklearn'
